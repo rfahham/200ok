@@ -1,9 +1,9 @@
 # !/usr/bin/env python
 # -- coding: utf-8 --
 
-# $ sudo -H pip3 install requests
-# $ sudo -H pip3 install urllib3
-# $ sudo -H pip3 install certifi
+# $ sudo -H pip install requests
+# $ sudo -H pip install urllib3
+# $ sudo -H pip install certifi
 
 # OU
 
@@ -14,6 +14,7 @@ import urllib3
 import certifi
 
 arq = open('lista.txt', 'r') # arquivo com a lista de urls
+
 arq_200 = open('200.csv', 'w')
 arq_401 = open('401.csv', 'w')
 arq_404 = open('404.csv', 'w')
@@ -36,8 +37,9 @@ while True:
     if linha == "":
         break
     url = linha.strip()
-    print(url)
+    print url
     r = requests.get(url, verify=False)
+    
     if (r.status_code == 200):
         writeFile(arq_200, linha)
         cont_200 += 1
@@ -56,7 +58,7 @@ while True:
     else: 
         print('Status Code desconhecido ')
 
-    a
+    # print("Status code " + str(r.status_code))
     
 print
 print '---------------------------'
@@ -76,7 +78,12 @@ print
 print '---------------------------'
 print
 
-
+arq.close()
+arq_200.close()
+arq_401.close()
+arq_404.close()
+arq_500.close()
+arq_503.close()
 
 
 # Docs

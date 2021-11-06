@@ -1,8 +1,6 @@
 # -- coding: utf-8 --
 
 import requests
-import urllib3
-import certifi
 
 class bcolors:
     OK = '\033[92m' #GREEN
@@ -27,15 +25,20 @@ while True:
     url = linha.strip()
     print(url)
     r =requests.get(url)
-    print(bcolors.OK + r.status_code + bcolors.RESET)
+    
     if (r.status_code == 200):
+        print(bcolors.OK + "STATUS CODE 200" + bcolors.RESET)
         writeFile(arq_200, linha)
         cont_200 += 1
     elif (r.status_code == 404):
-    	print(bcolors.FAIL + "STATUS CODE 404" + bcolors.RESET)
+        print(bcolors.FAIL + "STATUS CODE 404" + bcolors.RESET)
         writeFile(arq_404, linha)
         cont_404 += 1
 
 
 print(cont_200, 'tiveram Status Code 200 OK')
 print(cont_404, 'tiveram Status Code 404 Page Not Found')
+
+arq.close()
+arq_200.close()
+arq_404.close()

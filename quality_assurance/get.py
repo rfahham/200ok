@@ -2,6 +2,7 @@
 
 import requests
 
+
 class bcolors:
     OK = '\033[92m' #GREEN
     WARNING = '\033[93m' #YELLOW

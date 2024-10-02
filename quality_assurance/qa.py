@@ -1,113 +1,112 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # -- coding: utf-8 --
 
 import requests
 import urllib3
-import certifi
 import time
 import datetime
 
-tempo = input("Insira o tempo de execução em segundos: ")
+# Solicita ao usuário o tempo de execução em segundos
+tempo = float(input("Insira o tempo de execução em segundos: "))
 
-arq = open('lista.txt', 'r') # arquivo com a lista de urls
-
-def abrirPlanilhas():
-    arq_200 = open('200.csv', 'w')
-    arq_401 = open('401.csv', 'w')
-    arq_404 = open('404.csv', 'w')
-    arq_500 = open('500.csv', 'w')
-    arq_503 = open('503.csv', 'w')
-    return arq_200, arq_401, arq_404, arq_500, arq_503
-
+# Desabilita avisos do urllib3
 urllib3.disable_warnings()
 
 def writeFile(arq, linha):
-    arq.write(linha)
+    """Escreve uma linha no arquivo."""
+    try:
+        arq.write(linha + '\n')
+    except Exception as e:
+        print(f"Erro ao escrever no arquivo: {e}")
 
 def lendoLista(arq):
-    linha = "a"
-    listaArquivo = []
-    while linha != "":
-        linha = arq.readline()
-        url = linha.strip()
-        # print url
-        listaArquivo.append(url)
-    return listaArquivo
+    """Lê URLs de um arquivo e retorna uma lista."""
+    return [linha.strip() for linha in arq if linha.strip()]
 
 def executaRequests(listaUrl, arq_200, arq_401, arq_404, arq_500, arq_503):
-    cont_200 = 0
-    cont_401 = 0
-    cont_404 = 0
-    cont_500 = 0
-    cont_503 = 0
-    for i in range(0, len(listaUrl)-1):
-        r = requests.get(listaUrl[i], verify=False)
-        
-        if (r.status_code == 200):
-            writeFile(arq_200, listaUrl[i])
-            cont_200 += 1
-        elif (r.status_code == 404):
-            writeFile(arq_404, listaUrl[i])
-            cont_401 += 1
-        elif (r.status_code == 401):
-            writeFile(arq_401, listaUrl[i])
-            cont_404 += 1
-        elif (r.status_code == 500):
-            writeFile(arq_500, listaUrl[i])
-            cont_500 += 1
-        elif (r.status_code == 503):
-            writeFile(arq_503, listaUrl[i])
-            cont_503 += 1
-        else: 
-            print('Status Code desconhecido ')
-    return(cont_200, cont_401, cont_404, cont_500, cont_503)
-    
-    # print("Status code " + str(r.status_code))
+    """Executa requisições HTTP e conta os status codes."""
+    cont_200 = cont_401 = cont_404 = cont_500 = cont_503 = 0
+    total_requisicoes = 0
 
+    for url in listaUrl:
+        try:
+            r = requests.get(url, verify=False)
+            total_requisicoes += 1  # Contar cada requisição
+            if r.status_code == 200:
+                writeFile(arq_200, url)
+                cont_200 += 1
+            elif r.status_code == 401:
+                writeFile(arq_401, url)
+                cont_401 += 1
+            elif r.status_code == 404:
+                writeFile(arq_404, url)
+                cont_404 += 1
+            elif r.status_code == 500:
+                writeFile(arq_500, url)
+                cont_500 += 1
+            elif r.status_code == 503:
+                writeFile(arq_503, url)
+                cont_503 += 1
+            else: 
+                print(f'Status Code desconhecido para {url}: {r.status_code}')
+        except requests.RequestException as e:
+            print(f'Erro ao fazer requisição para {url}: {e}')
 
-def conta_request():
+    return cont_200, cont_401, cont_404, cont_500, cont_503, total_requisicoes
 
+def calcular_media_tempo(total_requisicoes, tempo_total):
+    """Calcula a média de tempo por requisição."""
+    if total_requisicoes > 0:
+        media = tempo_total / total_requisicoes
+        return media
+    else:
+        return 0  # Para evitar divisão por zero
 
 def printQtdStatusCode(cont_200, cont_401, cont_404, cont_500, cont_503):
-    print 'Sumary'
-    print '---------------------------'
-    print 'Total de urls verificadas:', (cont_200 + cont_401 + cont_404 + cont_500  + cont_503)
-    print 'Total de requests:', ()
-    print 'Páginas Status Code 200:', (cont_200)
-    print 'Páginas Status Code 401:', (cont_401)
-    print 'Páginas Status Code 404:', (cont_404)
-    print 'Páginas Status Code 500:', (cont_500)
-    print 'Páginas Status Code 503:', (cont_503)
-    # print 'Protocolo:'()
-    print '---------------------------'
+    """Imprime um resumo dos códigos de status."""
+    total_urls = cont_200 + cont_401 + cont_404 + cont_500 + cont_503
+    print("-"*50)
+    print(" "*20, "Summary", " "*20)
+    print("-"*50)
+    print(f"Total de URLs verificadas: {total_urls}")
+    print(f"Páginas com Status Code 200: {cont_200}")
+    print(f"Páginas com Status Code 401: {cont_401}")
+    print(f"Páginas com Status Code 404: {cont_404}")
+    print(f"Páginas com Status Code 500: {cont_500}")
+    print(f"Páginas com Status Code 503: {cont_503}")
+    print("-"*50)
 
-listaUrl = []
-listaUrl = lendoLista(arq)
+# Abrindo os arquivos de forma segura usando 'with'
+with open('lista.txt', 'r') as arq:
+    listaUrl = lendoLista(arq)
 
-arq_200, arq_401, arq_404, arq_500, arq_503 = abrirPlanilhas()
+with open('200.csv', 'w') as arq_200, \
+     open('401.csv', 'w') as arq_401, \
+     open('404.csv', 'w') as arq_404, \
+     open('500.csv', 'w') as arq_500, \
+     open('503.csv', 'w') as arq_503:
 
+    inicio = time.time()
+    total = 0  # Inicialize total
+    total_requisicoes = 0
 
-inicio = time.time()
-fim = time.time()
-total = fim - inicio
-while (total) < tempo :
-    cont_200, cont_401, cont_404, cont_500, cont_503 = executaRequests(listaUrl, arq_200, arq_401, arq_404, arq_500, arq_503)    
-    fim = time.time()
-    total = fim - inicio
-printQtdStatusCode(cont_200, cont_401, cont_404, cont_500, cont_503)
+    while total < tempo:
+        cont_200, cont_401, cont_404, cont_500, cont_503, requisicoes = executaRequests(listaUrl, arq_200, arq_401, arq_404, arq_500, arq_503)    
+        total_requisicoes += requisicoes  # Acumula o total de requisições
+        fim = time.time()
+        total = fim - inicio
 
-timestamp_inicio = datetime.datetime.fromtimestamp(inicio)
-print("Inicio do teste: " + timestamp_inicio.strftime('%d-%m-%Y - %H:%M:%S'))
+    # Chama a função para imprimir os status codes
+    printQtdStatusCode(cont_200, cont_401, cont_404, cont_500, cont_503)
 
-timestamp_fim = datetime.datetime.fromtimestamp(fim)
-print("Fim do teste:    " + timestamp_fim.strftime('%d-%m-%Y - %H:%M:%S'))
+    # Calcular e imprimir a média de tempo
+    media_tempo = calcular_media_tempo(total_requisicoes, total)
+    print(f"Média de tempo por requisição: {media_tempo:.2f} segundos")
 
-timestamp_total = datetime.datetime.fromtimestamp(total)
-print("Tempo de duração do teste:      " + timestamp_total.strftime(':%M:%S'))
+    # Timestamp de início e fim
+    print("Início do teste: " + datetime.datetime.fromtimestamp(inicio).strftime('%d-%m-%Y - %H:%M:%S'))
+    print("Fim do teste:    " + datetime.datetime.fromtimestamp(fim).strftime('%d-%m-%Y - %H:%M:%S'))
 
-arq.close()
-arq_200.close()
-arq_401.close()
-arq_404.close()
-arq_500.close()
-arq_503.close()
+    # Cálculo e formatação do tempo total
+    total_minutos, total_segundos = divmod(int(total), 60)
+    print(f"Tempo de duração do teste: {total_minutos} minuto(s) e {total_segundos} segundo(s)")

@@ -1,14 +1,13 @@
 # !/usr/bin/env python
 # -- coding: utf-8 --
 
-import funcoes form funcoes
+from funcoes import *
 import time
 import datetime
 
 tempo = input("Insira o tempo de execução em segundos: ")
 
 arq = open('lista.txt', 'r')  # arquivo com a lista de urls
-
 
 listaUrl = []
 listaUrl = lendoLista(arq)

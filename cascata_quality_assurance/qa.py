@@ -65,25 +65,25 @@ def executaRequests(listaUrl, arq_200, arq_401, arq_404, arq_500, arq_503):
 
 
 def printQtdStatusCode(tr, cont_request, cont_200, cont_401, cont_404, cont_500, cont_503):
-    print
-    print 'Sumary'
-    print '---------------------------'
-    print
-    print 'Total de urls verificadas:', (cont_200 + cont_401 + cont_404 + cont_500  + cont_503)
-    print
-    print 'Páginas Status Code 200:', (cont_200)
-    print 'Páginas Status Code 401:', (cont_401)
-    print 'Páginas Status Code 404:', (cont_404)
-    print 'Páginas Status Code 500:', (cont_500)
-    print 'Páginas Status Code 503:', (cont_503)
-    print
-    print '---------------------------'
-    print
-    print 'Throughput:', (cont_request)
-    print
-    print 'Tempo de Resposta(sec):', (tr), 'requests por segundo'
-    print
-    print
+    print("")
+    print("Sumary")
+    print("---------------------------")
+    print("")
+    print("Total de urls verificadas:", (cont_200 + cont_401 + cont_404 + cont_500  + cont_503))
+    print("")
+    print("Páginas Status Code 200:", (cont_200))
+    print("Páginas Status Code 401:", (cont_401))
+    print("Páginas Status Code 404:", (cont_404))
+    print("Páginas Status Code 500:", (cont_500))
+    print("Páginas Status Code 503:", (cont_503))
+    print("")
+    print("---------------------------")
+    print("")
+    print("Throughput:", (cont_request))
+    print("")
+    print("Tempo de Resposta(sec):", (tr), "requests por segundo")
+    print("")
+    print("")
 
 
 listaUrl = []
